@@ -43,7 +43,7 @@
   </div>
   <!-- 音乐列表弹窗 -->
   <Transition name="fade" mode="out-in">
-    <div class="music-list" v-show="musicListShow" @click="musicListShow = false">
+    <div class="music-list" v-show="musicListShow" @click="closeMusicList()">
       <Transition name="zoom">
         <div class="list" v-show="musicListShow" @click.stop>
           <close-one
@@ -51,15 +51,14 @@
             theme="filled"
             size="28"
             fill="#ffffff60"
-            @click="musicListShow = false"
+            @click="closeMusicList()"
           />
           <Player
+            ref="playerRef"
             :songServer="playerData.server"
             :songType="playerData.type"
             :songId="playerData.id"
             :volume="volumeNum"
-            :shuffle="false"
-            ref="playerRef"
           />
         </div>
       </Transition>
@@ -98,6 +97,13 @@ const playerData = reactive({
 // 开启播放列表
 const openMusicList = () => {
   musicListShow.value = true;
+  playerRef.value.toggleList();
+};
+
+// 关闭播放列表
+const closeMusicList = () => {
+  musicListShow.value = false;
+  playerRef.value.toggleList();
 };
 
 // 音乐播放暂停
@@ -113,6 +119,9 @@ const changeMusicIndex = (type) => {
 onMounted(() => {
   // 空格键事件
   window.addEventListener("keydown", (e) => {
+    if (!store.musicIsOk) {
+      return ;
+    }
     if (e.code == "Space") {
       changePlayState();
     }
